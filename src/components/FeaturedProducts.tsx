@@ -1,3 +1,5 @@
+import Link from 'next/link'
+import Image from 'next/image'
 import { BRAND_COLORS } from '@/lib/utils'
 
 const PRODUCTS = [
