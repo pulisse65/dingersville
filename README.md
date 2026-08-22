@@ -1,5 +1,7 @@
 # Dingersville — golf apparel brand website
 # Built with Next.js, Stripe Checkout, Tailwind CSS
+# Products loaded from static data (pages/shop/data.ts) —
+# no CMS dependency. Extend PRODUCTS in data.ts to add items.
 # Hosted on Netlify
 #
 # Setup:
