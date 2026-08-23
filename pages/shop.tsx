@@ -1,8 +1,8 @@
-'use client'
+
 
 import { useState } from 'react'
 import { loadStripe, Stripe } from '@stripe/stripe-js'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/router'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -81,7 +81,7 @@ export default function ShopPage() {
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-gray-900">Shop</h1>
-          <p className="mt-2 text-gray-500">Golf apparel that doesn\'t take itself too seriously.</p>
+          <p className="mt-2 text-gray-500">Golf apparel that doesn't take itself too seriously.</p>
         </div>
       </header>
 

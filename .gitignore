@@ -30,3 +30,9 @@ Thumbs.db
 .idea
 *.swp
 *.swo
+
+# Next.js generated types
+next-env.d.ts
+
+# Editor/agent local config
+.claude

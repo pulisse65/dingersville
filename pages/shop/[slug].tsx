@@ -1,4 +1,3 @@
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { GetStaticProps, GetStaticPaths } from 'next'
@@ -60,7 +59,6 @@ interface ProductPageProps {
 }
 
 export default function ProductPage({ product }: ProductPageProps) {
-  const router = useRouter()
 
   const handleBuy = async () => {
     if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
