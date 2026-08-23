@@ -1,36 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { BRAND_COLORS } from '@/lib/utils'
-
-const PRODUCTS = [
-  {
-    id: 'polo-001',
-    name: 'Dinger Polo',
-    tagline: 'The polo that doesn\'t take itself too seriously',
-    price: '$75',
-    color: 'Orange',
-    image: 'https://picsum.photos/seed/polo1/600/750',
-    href: '/shop/polo-001',
-  },
-  {
-    id: 'hat-001',
-    name: 'Dinger Cap',
-    tagline: 'Your round, your look',
-    price: '$35',
-    color: 'Teal',
-    image: 'https://picsum.photos/seed/hat1/600/750',
-    href: '/shop/hat-001',
-  },
-  {
-    id: 'short-001',
-    name: 'Dinger Short',
-    tagline: 'Freedom to move, style to match',
-    price: '$65',
-    color: 'Purple',
-    image: 'https://picsum.photos/seed/short1/600/750',
-    href: '/shop/short-001',
-  },
-]
+import { PRODUCTS } from '@/lib/products'
 
 export default function FeaturedProducts() {
   return (
@@ -55,7 +26,7 @@ export default function FeaturedProducts() {
           {PRODUCTS.map((product) => (
             <Link
               key={product.id}
-              href={product.href}
+              href={`/shop/${product.id}`}
               className="group rounded-2xl border border-gray-200 bg-white overflow-hidden transition-shadow hover:shadow-lg"
             >
               <div className="aspect-[4/5] bg-gray-100 relative overflow-hidden">
@@ -69,7 +40,7 @@ export default function FeaturedProducts() {
                 <div className="absolute top-3 right-3 rounded-full bg-white px-2.5 py-1 text-xs font-semibold shadow-sm">
                   {product.color}
                 </div>
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/40 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                 <div className="absolute bottom-3 left-3 right-3">
                   <p className="text-white text-sm font-medium drop-shadow-sm">{product.tagline}</p>
                 </div>
@@ -78,7 +49,9 @@ export default function FeaturedProducts() {
                 <p className="text-sm text-gray-500">Dingersville</p>
                 <h3 className="text-base font-semibold text-gray-900">{product.name}</h3>
                 <div className="mt-1 flex items-center justify-between">
-                  <span className="text-lg font-bold text-gray-900">{product.price}</span>
+                  <span className="text-lg font-bold text-gray-900">
+                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(product.priceCents / 100)}
+                  </span>
                   <span className="rounded-full bg-brand-orange/10 px-2 py-0.5 text-xs font-semibold text-brand-orange">New</span>
                 </div>
               </div>
@@ -86,10 +59,7 @@ export default function FeaturedProducts() {
           ))}
         </div>
         <div className="mt-8 text-center md:hidden">
-          <Link
-            href="/shop"
-            className="inline-flex items-center text-sm font-semibold text-brand-orange hover:text-[#E56A1A] transition-colors"
-          >
+          <Link href="/shop" className="inline-flex items-center text-sm font-semibold text-brand-orange hover:text-[#E56A1A] transition-colors">
             View all products
             <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />

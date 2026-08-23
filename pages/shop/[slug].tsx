@@ -1,79 +1,23 @@
+import { GetStaticProps, GetStaticPaths } from 'next'
+import { useState } from 'react'
+
 import Image from 'next/image'
 import Link from 'next/link'
-import { GetStaticProps, GetStaticPaths } from 'next'
-import { loadStripe, Stripe } from '@stripe/stripe-js'
-
-const PRODUCTS = [
-  {
-    id: 'polo-001',
-    name: 'Dinger Polo',
-    tagline: 'The polo that doesn\'t take itself too seriously',
-    price: 7500,
-    priceDisplay: '$75',
-    description: 'Soft, breathable polo with a relaxed fit. Orange body, white collar and cuffs. Three buttons, two pockets, and a look that says you care about your swing but not fashion week.',
-    color: 'Orange',
-    sizes: ['S', 'M', 'L', 'XL'],
-    image: 'https://picsum.photos/seed/polo1/800/1000',
-    category: 'polos',
-  },
-  {
-    id: 'hat-001',
-    name: 'Dinger Cap',
-    tagline: 'Your round, your look',
-    price: 3500,
-    priceDisplay: '$35',
-    description: 'Structured 6-panel cap in teal with the Dingersville logo on the front. Adjustable snapback. Built for sun protection and good looks on the first tee.',
-    color: 'Teal',
-    sizes: ['One Size'],
-    image: 'https://picsum.photos/seed/hat1/800/1000',
-    category: 'hats',
-  },
-  {
-    id: 'short-001',
-    name: 'Dinger Short',
-    tagline: 'Freedom to move, style to match',
-    price: 6500,
-    priceDisplay: '$65',
-    description: 'Tailored short with elastic waist, zip pocket, and a relaxed hem. Purple with deep green side panels. Fits like it should — not too tight, not baggy.',
-    color: 'Purple',
-    sizes: ['S', 'M', 'L', 'XL'],
-    image: 'https://picsum.photos/seed/short1/800/1000',
-    category: 'shorts',
-  },
-  {
-    id: 'polo-002',
-    name: 'Dinger Long-Sleeve',
-    tagline: 'For early mornings and late evenings',
-    price: 8500,
-    priceDisplay: '$85',
-    description: 'Long-sleeve polo in deep green. Woven fabric, mock collar, side vents. The piece you reach for when the morning frost hasn\'t burned off yet.',
-    color: 'Deep Green',
-    sizes: ['S', 'M', 'L', 'XL'],
-    image: 'https://picsum.photos/seed/longsleeve1/800/1000',
-    category: 'polos',
-  },
-]
+import { useCart } from '@/lib/cart'
+import { PRODUCTS, byId, Product } from '@/lib/products'
 
 interface ProductPageProps {
-  product: typeof PRODUCTS[0]
+  product: Product
 }
 
 export default function ProductPage({ product }: ProductPageProps) {
+  const { addToCart } = useCart()
+  const [selectedSize, setSelectedSize] = useState<string>(product.sizes[0] || '')
 
-  const handleBuy = async () => {
-    if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
-      alert('Stripe is not configured yet. Add your keys to .env.local')
-      return
-    }
-    const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
-    if (!stripe) return
-    const { error } = await stripe.redirectToCheckout({
-      lineItems: [{ price: product.id, quantity: 1 }],
-      mode: 'payment',
-      successUrl: `${window.location.origin}/checkout/success?product=${product.id}`,
-      cancelUrl: `${window.location.origin}/shop`,
-    })
-    if (error) console.error(error)
+  const handleAddToCart = () => {
+    if (!selectedSize) return
+    addToCart(product.id, selectedSize)
+    setSelectedSize('')
   }
 
   return (
@@ -104,7 +48,9 @@ export default function ProductPage({ product }: ProductPageProps) {
             <p className="text-sm text-gray-500 uppercase tracking-wide">Dingersville — {product.category}</p>
             <h1 className="mt-1 text-3xl font-bold text-gray-900">{product.name}</h1>
             <p className="mt-2 text-brand-orange font-semibold">{product.tagline}</p>
-            <p className="mt-4 text-2xl font-bold text-gray-900">{product.priceDisplay}</p>
+            <p className="mt-4 text-2xl font-bold text-gray-900">
+              {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(product.priceCents / 100)}
+            </p>
 
             <p className="mt-6 text-gray-600 leading-relaxed">{product.description}</p>
 
@@ -112,24 +58,29 @@ export default function ProductPage({ product }: ProductPageProps) {
               <span className="text-sm font-semibold text-gray-700">Available sizes</span>
               <div className="mt-2 flex flex-wrap gap-2">
                 {product.sizes.map(size => (
-                  <span
+                  <button
                     key={size}
-                    className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 bg-white"
+                    onClick={() => setSelectedSize(size)}
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                      selectedSize === size
+                        ? 'border-brand-orange bg-brand-orange text-white'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-brand-orange hover:text-brand-orange'
+                    }`}
                   >
                     {size}
-                  </span>
+                  </button>
                 ))}
               </div>
             </div>
 
             <button
-              onClick={handleBuy}
-              disabled={!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+              onClick={handleAddToCart}
+              disabled={!selectedSize}
               className="mt-6 w-full rounded-xl bg-brand-orange px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-[#E56A1A] transition-colors disabled:cursor-not-allowed disabled:bg-gray-300"
             >
-              {process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-                ? `Buy now — ${product.priceDisplay}`
-                : 'Add Stripe keys to enable checkout'}
+              {selectedSize
+                ? `Add to cart — ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(product.priceCents / 100)}`
+                : 'Select a size'}
             </button>
 
             <p className="mt-3 text-xs text-gray-400">
@@ -159,7 +110,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const product = PRODUCTS.find(p => p.id === params?.slug)
+  const product = byId(params?.slug as string)
   if (!product) return { notFound: true }
   return { props: { product } }
 }
