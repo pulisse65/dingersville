@@ -3,7 +3,7 @@ import Stripe from 'stripe'
 import { byId } from '@/lib/products'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-04-30.basil-gepa',
+  apiVersion: '2024-10-28.acacia',
 })
 
 export const config = {

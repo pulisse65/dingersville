@@ -35,7 +35,7 @@ export default function CheckoutSuccess({ session }: SuccessPageProps) {
                   <p>Amount paid: <span className="font-semibold text-gray-900">
                     {new Intl.NumberFormat('en-US', { style: 'currency', currency: session.currency || 'usd', minimumFractionDigits: 2 }).format((session.amount_total || 0) / 100)}
                   </span></p>
-                  <p> receipt: <span className="font-mono text-xs">{session.payment_intent}</span></p>
+                  <p> receipt: <span className="font-mono text-xs">{[String(session.payment_intent)]}</span></p>
                 </div>
               </div>
             )}
@@ -61,7 +61,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     return { redirect: { destination: '/cart', permanent: false } }
   }
   try {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-04-30.basil-gepa' })
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-10-28.acacia' })
     const session = await stripe.checkout.sessions.retrieve(sessionId)
     if (!session || session.payment_status !== 'paid') {
       return { redirect: { destination: '/cart', permanent: false } }
