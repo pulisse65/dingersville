@@ -25,7 +25,7 @@ export default function ContactPage() {
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
           <p className="text-sm text-gray-500 uppercase tracking-wide">Dingersville</p>
           <h1 className="mt-2 text-3xl font-bold text-gray-900">Contact</h1>
-          <p className="mt-3 text-lg text-gray-600">Questions, wholesale inquiries, or just want to say hey — we\'d love to hear from you.</p>
+          <p className="mt-3 text-lg text-gray-600">Questions, wholesale inquiries, or just want to say hey — we'd love to hear from you.</p>
         </div>
       </header>
 
@@ -43,7 +43,7 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <h3 className="mt-4 text-lg font-semibold text-gray-900">Message sent!</h3>
-                <p className="mt-2 text-sm text-gray-500">We\'ll get back to you within 1-2 business days.</p>
+                <p className="mt-2 text-sm text-gray-500">We'll get back to you within 1-2 business days.</p>
                 <button
                   onClick={() => setFormState('idle')}
                   className="mt-4 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
@@ -165,7 +165,7 @@ export default function ContactPage() {
             <div className="rounded-2xl bg-brand-cream p-6">
               <h2 className="text-lg font-semibold text-gray-900">Wholesale & partnerships</h2>
               <p className="mt-2 text-sm text-gray-600">
-                Interested in carrying Dingersville at your pro shop, course, or brand? Reach out via the form and we\'ll talk.
+                Interested in carrying Dingersville at your pro shop, course, or brand? Reach out via the form and we'll talk.
               </p>
               <Link
                 href="/shop"

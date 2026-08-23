@@ -54,7 +54,7 @@ export default function AboutPage() {
             </div>
             <h3 className="mt-4 text-lg font-semibold text-gray-900">Fun first</h3>
             <p className="mt-2 text-sm text-gray-500">
-              Golf is supposed to be fun. We make gear that celebrates that — colorful, playful, and never stiff. If your outfit looks like you\'re headed to a board meeting, you\'re doing it wrong.
+              Golf is supposed to be fun. We make gear that celebrates that — colorful, playful, and never stiff. If your outfit looks like you're headed to a board meeting, you're doing it wrong.
             </p>
           </div>
           <div className="rounded-2xl bg-white p-6 shadow-sm">
@@ -92,10 +92,10 @@ export default function AboutPage() {
           <div className="rounded-2xl bg-gray-50 p-6 sm:p-8">
             <p className="text-sm font-semibold text-gray-900 uppercase tracking-wide">From the Founder</p>
             <p className="mt-4 text-gray-700 leading-relaxed">
-              I started Dingersville because every golf brand out there looks like it was designed by someone who\'s never actually played a round. Collared polos at $90 that look great in a catalog and terrible in a sand trap. We\'re doing the opposite — colorful, comfortable, and priced so you don\'t feel guilty buying three.
+              I started Dingersville because every golf brand out there looks like it was designed by someone who's never actually played a round. Collared polos at $90 that look great in a catalog and terrible in a sand trap. We're doing the opposite — colorful, comfortable, and priced so you don't feel guilty buying three.
             </p>
             <p className="mt-4 text-gray-700 leading-relaxed">
-              The gopher is the mascot because — honestly — what else says "I\'m here to have fun and maybe shoot a decent round" better than a gopher? We\'re building Dingersville one drop at a time, and we\'re just getting started.
+              The gopher is the mascot because — honestly — what else says "I'm here to have fun and maybe shoot a decent round" better than a gopher? We're building Dingersville one drop at a time, and we're just getting started.
             </p>
             <p className="mt-6 text-sm text-gray-500">— Paul, Founder</p>
           </div>
@@ -104,7 +104,7 @@ export default function AboutPage() {
 
       {/* Timeline */}
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
-        <h2 className="text-2xl font-bold text-gray-900">Where we\'re headed</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Where we're headed</h2>
         <div className="mt-6 relative">
           <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-brand-orange/30" />
           <div className="space-y-6">
