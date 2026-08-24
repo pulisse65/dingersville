@@ -15,6 +15,11 @@ module.exports = {
           cream: '#FDF8F0',
           white: '#FFFFFF',
         },
+        // Short aliases used by the redesigned components.
+        orange: '#F47B20',
+        teal: '#14B8A6',
+        purple: '#7C3AED',
+        deepGreen: '#1A4D2E',
         ink: '#1F1B16',
         cream: '#FDF8F0',
         gold: '#D4A017',

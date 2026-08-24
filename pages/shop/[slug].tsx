@@ -11,7 +11,7 @@ interface ProductPageProps {
 }
 
 export default function ProductPage({ product }: ProductPageProps) {
-  const { addToCart } = useCart()
+  const { addToCart, itemCount } = useCart()
   const [selectedSize, setSelectedSize] = useState<string>(product.sizes[0] || '')
   const [addedToCart, setAddedToCart] = useState(false)
 
@@ -36,7 +36,7 @@ export default function ProductPage({ product }: ProductPageProps) {
 
         <div className="grid gap-10 md:grid-cols-2">
           {/* Product image */}
-          <div className="aspect-square bg-gray-100 relative">
+          <div className="aspect-square rounded-3xl bg-gradient-to-br from-brand-cream via-brand-teal/10 to-brand-purple/15 relative overflow-hidden ring-1 ring-brand-purple/10 shadow-sm">
             <Image
               src={product.image}
               alt={product.name}
@@ -51,7 +51,7 @@ export default function ProductPage({ product }: ProductPageProps) {
           </div>
 
           {/* Product details */}
-          <div id="main-content" className="flex flex-col">
+          <div id="main-content" className="flex flex-col rounded-3xl bg-brand-cream/70 p-6 md:p-8 shadow-sm ring-1 ring-brand-orange/10">
             <p className="text-sm text-gray-500 uppercase tracking-wide">Dingersville — {product.category}</p>
             <h1 className="mt-1 text-3xl font-brand font-bold text-gray-900">{product.name}</h1>
             <p className="mt-2 text-orange font-semibold">{product.tagline}</p>
@@ -70,10 +70,10 @@ export default function ProductPage({ product }: ProductPageProps) {
                     key={size}
                     onClick={() => setSelectedSize(size)}
                     aria-pressed={selectedSize === size}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                    className={`min-h-11 min-w-11 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
                       selectedSize === size
-                        ? 'border-orange bg-orange text-white'
-                        : 'border-gray-300 bg-white text-gray-700 hover:border-orange hover:text-orange'
+                        ? '!border-brand-orange !bg-brand-orange !text-white shadow-sm ring-2 ring-brand-orange/30'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-brand-orange hover:text-brand-orange'
                     }`}
                   >
                     {size}
@@ -97,7 +97,7 @@ export default function ProductPage({ product }: ProductPageProps) {
               {addedToCart ? (
                 'Added to bag'
               ) : selectedSize ? (
-                `Add to bag — {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(product.priceCents / 100)}`
+                `Add to bag — ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(product.priceCents / 100)}`
               ) : (
                 'Select a size'
               )}
@@ -120,7 +120,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                 href="/cart"
                 className="inline-flex items-center rounded-xl bg-orange px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-orange/90 transition-colors"
               >
-                View bag {useCart().itemCount > 0 ? `(${useCart().itemCount})` : ''}
+                View bag {itemCount > 0 ? `(${itemCount})` : ''}
               </Link>
             </div>
           </div>
