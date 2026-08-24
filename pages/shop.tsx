@@ -14,7 +14,7 @@ export default function ShopPage() {
     ? PRODUCTS
     : PRODUCTS.filter(p => p.category === filter)
 
-  const categories = ['all', 'polos', 'hats', 'shorts']
+  const categories = ['all', 'polos', 'hats', 'shorts', 'hoodies', 'accessories']
 
   const handleAddToCart = (product: typeof PRODUCTS[0], size: string) => {
     addToCart(product.id, size)

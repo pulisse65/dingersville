@@ -55,13 +55,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       order_id: session.id,
       email: session.customer_details?.email,
       shipping: session.shipping_details,
-      items: items.filter(i => byId(i.productId)).map(i => ({
-        productId: i.productId,
-        size: i.size,
-        qty: i.qty,
-        name: byId(i.productId)!.name,
-        priceCents: byId(i.productId)!.priceCents,
-      })),
+      items: items.filter(i => byId(i.productId)).map(i => {
+        const product = byId(i.productId)!
+        return {
+          productId: i.productId,
+          size: i.size,
+          qty: i.qty,
+          name: product.name,
+          priceCents: product.priceCents,
+          variant_id: product.printifyVariantId,
+        }
+      }),
       subtotalCents: session.amount_total || 0,
       currency: session.currency,
       created: session.created,
