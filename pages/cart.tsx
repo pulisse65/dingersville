@@ -2,9 +2,41 @@ import { useCart, LineItem } from '@/lib/cart'
 import { byId } from '@/lib/products'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState, FormEvent } from 'react'
 
 export default function CartPage() {
   const { items, itemCount, subtotalCents, removeFromCart, setQty, clearCart } = useCart()
+
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
+
+  const handleCheckout = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (checkoutLoading) return
+    setCheckoutLoading(true)
+    setCheckoutError(null)
+    try {
+      const res = await fetch(`${window.location.origin}/api/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || `Checkout failed (${res.status})`)
+      }
+      const data = await res.json()
+      if (data.url) {
+        window.location.assign(data.url)
+      } else {
+        throw new Error('No checkout URL returned')
+      }
+    } catch (err) {
+      setCheckoutError(err instanceof Error ? err.message : 'Checkout failed. Please try again.')
+    } finally {
+      setCheckoutLoading(false)
+    }
+  }
 
   if (items.length === 0) {
     return (
@@ -71,7 +103,7 @@ export default function CartPage() {
                           <h3 className="text-base font-semibold text-gray-900 truncate">{product.name}</h3>
                           <p className="text-sm text-gray-500">Size: {item.size}</p>
                           <p className="mt-1 text-base font-bold text-gray-900">
-                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(product.priceCents / 100)}
+                            {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(product.priceCents / 100)}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -111,10 +143,21 @@ export default function CartPage() {
               </p>
               <p className="mt-2 text-xs text-gray-500">Taxes and shipping calculated at checkout.</p>
               <button
-                onClick={() => window.location.href = `${window.location.origin}/api/checkout`}
-                className="mt-6 w-full rounded-xl bg-brand-orange px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-[#E56A1A] transition-colors"
+                onClick={handleCheckout}
+                disabled={checkoutLoading}
+                className="mt-6 w-full rounded-xl bg-brand-orange px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-[#E56A1A] transition-colors disabled:cursor-not-allowed disabled:bg-gray-300"
               >
-                Checkout
+                {checkoutLoading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Redirecting...
+                  </span>
+                ) : (
+                  'Checkout'
+                )}
               </button>
               <Link
                 href="/shop"

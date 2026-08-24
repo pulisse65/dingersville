@@ -1,9 +1,8 @@
 import Link from 'next/link'
 import { useState } from 'react'
-import { BRAND_COLORS } from '@/lib/utils'
 
 export default function ContactPage() {
-  const [formState, setFormState] = useState<'idle' | 'submitting' | 'success'>('idle')
+  const [formState, setFormState] = useState<'idle' | 'submitting' | 'error' | 'success'>('idle')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,9 +13,20 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setFormState('submitting')
-    // In production, send to an API route or email service
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setFormState('success')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+      if (res.ok) {
+        setFormState('success')
+      } else {
+        setFormState('error')
+      }
+    } catch {
+      setFormState('error')
+    }
   }
 
   return (
@@ -42,13 +52,31 @@ export default function ContactPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-gray-900">Message sent!</h3>
-                <p className="mt-2 text-sm text-gray-500">We'll get back to you within 1-2 business days.</p>
+                <h3 className="mt-4 text-lg font-semibold text-gray-900">Thanks! We'll be in touch.</h3>
+                <p className="mt-2 text-sm text-gray-500">We aim to reply within 1-2 business days.</p>
                 <button
                   onClick={() => setFormState('idle')}
                   className="mt-4 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   Send another message
+                </button>
+              </div>
+            ) : formState === 'error' ? (
+              <div className="flex flex-col items-center text-center py-8">
+                <div
+                  className="mx-auto h-12 w-12 rounded-full bg-red-50 flex items-center justify-center"
+                >
+                  <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3L16 16c.106 0 .21-.006.316-.017" />
+                  </svg>
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-gray-900">Something went wrong</h3>
+                <p className="mt-2 text-sm text-gray-500">Couldn't send your message. Please email us directly or try again.</p>
+                <button
+                  onClick={() => setFormState('idle')}
+                  className="mt-4 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Try again
                 </button>
               </div>
             ) : (
@@ -130,35 +158,31 @@ export default function ContactPage() {
               <dl className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div className="flex flex-col">
                   <dt className="text-xs text-gray-500 uppercase tracking-wide">Email</dt>
-                  <dd className="mt-1 text-sm text-gray-700">hello@dingersville.com</dd>
-                </div>
-                <div className="flex flex-col">
-                  <dt className="text-xs text-gray-500 uppercase tracking-wide">Response time</dt>
-                  <dd className="mt-1 text-sm text-gray-700">1-2 business days</dd>
+                  <dd className="mt-1 text-sm text-gray-700">
+                    <a href="mailto:hello@dingersville.com" className="hover:text-brand-orange transition-colors">
+                      hello@dingersville.com
+                    </a>
+                  </dd>
                 </div>
                 <div className="flex flex-col sm:col-span-2">
-                  <dt className="text-xs text-gray-500 uppercase tracking-wide">Address</dt>
-                  <dd className="mt-1 text-sm text-gray-700">Dingersville — dropshipping via Printify, everywhere and nowhere.</dd>
+                  <dt className="text-xs text-gray-500 uppercase tracking-wide">Shipping</dt>
+                  <dd className="mt-1 text-sm text-gray-700">United States only — orders ship via Printify to the address in your Stripe checkout.</dd>
                 </div>
               </dl>
             </div>
 
             <div className="rounded-2xl bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900">Follow along</h2>
-              <p className="mt-2 text-sm text-gray-500">The gopher posts here first. New drops, course stories, and the occasional questionable golf opinion.</p>
+              <p className="mt-2 text-sm text-gray-500">Follow Dingersville for new drops and course stories.</p>
               <div className="mt-4 flex gap-3">
-                {[
-                  { label: 'Instagram', handle: '@dingersville' },
-                  { label: 'TikTok', handle: '@dingersville' },
-                ].map(social => (
-                  <div
-                    key={social.label}
-                    className="flex-1 rounded-xl border border-gray-200 bg-gray-50 p-4 text-center"
-                  >
-                    <p className="text-sm font-semibold text-gray-900">{social.label}</p>
-                    <p className="mt-1 text-sm text-brand-orange">{social.handle}</p>
-                  </div>
-                ))}
+                <div className="flex-1 rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+                  <p className="text-sm font-semibold text-gray-900">Instagram</p>
+                  <p className="mt-1 text-sm text-brand-orange">@dingersville</p>
+                </div>
+                <div className="flex-1 rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+                  <p className="text-sm font-semibold text-gray-900">TikTok</p>
+                  <p className="mt-1 text-sm text-brand-orange">@dingersville</p>
+                </div>
               </div>
             </div>
 

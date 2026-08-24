@@ -3,9 +3,68 @@
 @tailwind utilities;
 
 :root {
-  --font-inter: 'Inter';
+  --font-brand: "Chalkboard SE", "Chalkboard", "Comic Sans MS", cursive;
+  --font-body: "Chalkboard SE", "Chalkboard", system-ui, -apple-system, sans-serif;
+
+  --color-ink: #1F1B16;
+  --color-cream: #FDF8F0;
+  --color-orange: #F47B20;
+  --color-gold: #D4A017;
+  --color-teal: #14B8A6;
+  --color-plum: #7C3AED;
 }
 
-html {
-  -webkit-text-size-adjust: 100%;
+/* Base — Chalkboard for brand text, system stack for body */
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background-color: var(--color-cream);
+}
+
+/* Brand display: Chalkboard Bold for headings, nav, buttons, product names, prices */
+.font-brand {
+  font-family: var(--font-brand);
+  font-weight: 700;
+}
+
+/* Brand body: Chalkboard regular for paragraphs */
+.font-brand-body {
+  font-family: var(--font-brand);
+  font-weight: 400;
+}
+
+/* Remove default Inter stuff */
+.font-inter {
+  font-family: var(--font-body);
+}
+
+/* Focus — orange ring */
+:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 2px;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: var(--color-orange);
+  color: white;
+  font-family: var(--font-brand);
+  font-weight: 700;
+  border-radius: 4px;
+}
+.skip-link:focus {
+  top: 16px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
