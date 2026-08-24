@@ -2,7 +2,12 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import Stripe from 'stripe'
 import { byId } from '@/lib/products'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+if (!stripeSecretKey) {
+  throw new Error('STRIPE_SECRET_KEY is not set. Configure it in Netlify project settings → Environment variables.')
+}
+
+const stripe = new Stripe(stripeSecretKey, {
   apiVersion: '2024-10-28.acacia',
 })
 
