@@ -2,7 +2,7 @@ import { useCart, LineItem } from '@/lib/cart'
 import { byId } from '@/lib/products'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, FormEvent } from 'react'
+import { useState } from 'react'
 
 export default function CartPage() {
   const { items, itemCount, subtotalCents, removeFromCart, setQty, clearCart } = useCart()
@@ -64,15 +64,15 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="border-b border-gray-200 bg-white">
+        <header className="rounded-3xl bg-brand-cream px-6 py-6 shadow-sm ring-1 ring-brand-orange/10">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Your bag ({itemCount})</h1>
+              <h1 className="text-3xl font-brand font-bold text-gray-900">Your bag ({itemCount})</h1>
               <p className="mt-1 text-gray-500">{itemCount} item{itemCount !== 1 ? 's' : ''}</p>
             </div>
             <button
               onClick={clearCart}
-              className="rounded-full text-sm font-medium text-gray-600 hover:text-brand-orange transition-colors"
+              className="min-h-11 rounded-full px-4 text-sm font-medium text-gray-600 hover:bg-white hover:text-brand-orange transition-colors"
             >
               Clear bag
             </button>
@@ -87,7 +87,7 @@ export default function CartPage() {
                 const product = byId(item.productId)
                 if (!product) return null
                 return (
-                  <div key={`${item.productId}-${item.size}`} className="flex gap-4">
+                  <div key={`${item.productId}-${item.size}`} className="flex gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
                     <div className="relative h-24 w-20 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
                       <Image
                         src={product.image}
@@ -110,14 +110,17 @@ export default function CartPage() {
                           <button
                             onClick={() => setQty(item.productId, item.size, item.qty - 1)}
                             disabled={item.qty <= 1}
-                            className="rounded-md border border-gray-300 p-1 text-gray-500 hover:border-brand-orange hover:text-brand-orange disabled:opacity-40"
+                            aria-label={`Decrease ${product.name} quantity`}
+                            className="min-h-11 min-w-11 rounded-md border border-gray-300 p-1 text-lg text-gray-500 hover:border-brand-orange hover:text-brand-orange disabled:opacity-40"
                           >
                             −
                           </button>
                           <span className="w-8 text-center text-sm font-medium text-gray-900">{item.qty}</span>
                           <button
                             onClick={() => setQty(item.productId, item.size, item.qty + 1)}
-                            className="rounded-md border border-gray-300 p-1 text-gray-500 hover:border-brand-orange hover:text-brand-orange"
+                            aria-label={`Increase ${product.name} quantity`}
+                            disabled={item.qty >= 10}
+                            className="min-h-11 min-w-11 rounded-md border border-gray-300 p-1 text-lg text-gray-500 hover:border-brand-orange hover:text-brand-orange disabled:opacity-40"
                           >
                             +
                           </button>
@@ -136,7 +139,7 @@ export default function CartPage() {
             </div>
 
             {/* Subtotal */}
-            <div className="self-start bg-white rounded-xl border border-gray-200 p-6">
+            <div className="self-start rounded-3xl border border-brand-orange/15 bg-gradient-to-br from-brand-cream to-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900">Subtotal</h2>
               <p className="mt-1 text-2xl font-bold text-gray-900">
                 {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(subtotalCents / 100)}

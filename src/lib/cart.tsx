@@ -25,10 +25,10 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       )
       if (existing >= 0) {
         const next = [...state]
-        next[existing] = { ...next[existing], qty: next[existing].qty + action.item.qty }
+        next[existing] = { ...next[existing], qty: Math.min(10, next[existing].qty + action.item.qty) }
         return next
       }
-      return [...state, action.item]
+      return [...state, { ...action.item, qty: Math.min(10, action.item.qty) }]
     }
     case 'REMOVE_LINE':
       return state.filter(i => !(i.productId === action.productId && i.size === action.size))
@@ -37,7 +37,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       const existing = state.findIndex(i => i.productId === action.productId && i.size === action.size)
       if (existing < 0) return state
       const next = [...state]
-      next[existing] = { ...next[existing], qty: action.qty }
+      next[existing] = { ...next[existing], qty: Math.min(10, action.qty) }
       return next
     }
     case 'CLEAR':
