@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import { useCart } from '@/lib/cart'
 import Image from 'next/image'
 import Link from 'next/link'
 import { PRODUCTS } from '@/lib/products'
 
 export default function ShopPage() {
+  const router = useRouter()
   const [filter, setFilter] = useState<string>('all')
   const { addToCart } = useCart()
   const [selectedProduct, setSelectedProduct] = useState<typeof PRODUCTS[0] | null>(null)
@@ -15,6 +17,18 @@ export default function ShopPage() {
     : PRODUCTS.filter(p => p.category === filter)
 
   const categories = ['all', 'polos', 'hats', 'shorts', 'hoodies', 'accessories']
+
+  useEffect(() => {
+    const queryCategory = router.query.category
+    if (typeof queryCategory === 'string' && categories.includes(queryCategory)) {
+      setFilter(queryCategory)
+    }
+  }, [router.query.category])
+
+  const selectCategory = (category: string) => {
+    setFilter(category)
+    void router.push(category === 'all' ? '/shop' : `/shop?category=${category}`, undefined, { shallow: true })
+  }
 
   const handleAddToCart = (product: typeof PRODUCTS[0], size: string) => {
     addToCart(product.id, size)
@@ -37,8 +51,9 @@ export default function ShopPage() {
           {categories.map(cat => (
             <button
               key={cat}
-              onClick={() => setFilter(cat)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              onClick={() => selectCategory(cat)}
+              aria-pressed={filter === cat}
+              className={`min-h-11 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                 filter === cat
                   ? 'bg-brand-orange text-white shadow-sm'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-brand-orange/50'
@@ -79,7 +94,7 @@ export default function ShopPage() {
                 </h3>
                 <p className="mt-1 text-sm text-gray-500 line-clamp-2">{product.tagline}</p>
                 <p className="mt-2 text-lg font-bold text-gray-900">
-                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(product.priceCents / 100)}
+                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(product.priceCents / 100)}
                 </p>
               </div>
             </Link>
