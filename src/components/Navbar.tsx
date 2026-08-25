@@ -47,9 +47,9 @@ export default function Navbar() {
             className="relative inline-flex min-h-11 items-center rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
             onClick={closeMenu}
           >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m0 0h3.75m-3.75 0h7.5m-7.5 0v-3.75a3.75 3.75 0 017.5 0v3.75" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5m-16.5 0a3 3 0 003 3h10.5a3 3 0 003-3m-10.5 0v-14.25" />
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 21h12M9 21V4m0 0c2.2-1.6 4.4-1.6 6.6 0C17.2 5.2 18 5.2 19 4v7c-1 .9-1.8.9-3.4 0C13.4 9.4 11.2 9.4 9 11" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 21h8" />
             </svg>
             <span className="ml-1.5">{itemCount > 0 ? String(itemCount) : 'Bag'}</span>
             {itemCount > 0 && (
