@@ -65,7 +65,10 @@ export default function ShopPage() {
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 />
-                <div className="absolute top-3 right-3 rounded-full bg-white px-2.5 py-1 text-xs font-semibold shadow-sm">
+                <div
+                  className="pointer-events-none absolute top-3 right-3 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold shadow-sm"
+                  title={`Color: ${product.color}`}
+                >
                   {product.color}
                 </div>
               </div>
