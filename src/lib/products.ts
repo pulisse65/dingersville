@@ -18,10 +18,13 @@ export type Product = {
   printifyVariantId: string
   sku: string
   costCents: number
+  images?: Array<{ src: string; variantIds: number[] }>
+  colors?: string[]
+  variants?: Array<{ id: string; title: string; sku: string; priceCents: number; color: string }>
 }
 
 // Products shown on the site — curated subset of Printify catalog
-export const PRODUCTS: Product[] = [
+const CORE_PRODUCTS: Product[] = [
   // --- Core 4 (our signature pieces) ---
   {
     id: 'polo-001',
@@ -169,6 +172,43 @@ export const PRODUCTS: Product[] = [
     costCents: byPrintifyId('68a4da7fd8c4d1e37407c866')!.costCents,
   },
 ]
+
+const roundToNinetyNine = (cents: number) => Math.max(99, Math.ceil(cents / 100) * 100 - 1)
+
+const EXTRA_PRODUCTS: Product[] = PRINTIFY_PRODUCTS
+  .filter(printify => !CORE_PRODUCTS.some(core => core.printifyId === printify.printifyId))
+  .map((printify, index) => ({
+    id: `printify-${printify.printifyId}`,
+    name: printify.name,
+    tagline: printify.tagline,
+    description: printify.description,
+    priceCents: printify.priceCents,
+    currency: printify.currency,
+    color: printify.color,
+    colors: printify.colors,
+    sizes: printify.sizes.length ? printify.sizes : ['One Size'],
+    image: printify.image,
+    images: printify.images,
+    category: printify.category,
+    printifyId: printify.printifyId,
+    printifyVariantId: printify.printifyVariantId,
+    sku: printify.sku || `printify-${index}`,
+    costCents: printify.costCents,
+    variants: printify.variants,
+  }))
+
+// Preserve stable IDs and fulfillment mappings for the original core products,
+// while exposing every currently published Printify product on the storefront.
+export const PRODUCTS: Product[] = [...CORE_PRODUCTS, ...EXTRA_PRODUCTS].map(product => {
+  const synced = byPrintifyId(product.printifyId)
+  return {
+    ...product,
+    priceCents: roundToNinetyNine(product.priceCents),
+    images: product.images ?? synced?.images ?? [{ src: product.image, variantIds: [] }],
+    colors: product.colors ?? synced?.colors ?? [product.color],
+    variants: product.variants ?? synced?.variants,
+  }
+})
 
 export const byId = (id: string) => PRODUCTS.find(p => p.id === id)
 

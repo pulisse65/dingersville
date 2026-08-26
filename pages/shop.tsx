@@ -1,28 +1,19 @@
+import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { useCart } from '@/lib/cart'
-import Image from 'next/image'
-import Link from 'next/link'
 import { PRODUCTS } from '@/lib/products'
+import ProductCard from '@/components/ProductCard'
+import { SITE } from '@/lib/site'
+
+const categories = ['all', 'polos', 'hats', 'shorts', 'tees', 'hoodies', 'accessories'] as const
 
 export default function ShopPage() {
   const router = useRouter()
   const [filter, setFilter] = useState<string>('all')
-  const { addToCart } = useCart()
-  const [selectedProduct, setSelectedProduct] = useState<typeof PRODUCTS[0] | null>(null)
-  const [selectedSize, setSelectedSize] = useState<string>('')
-
-  const filtered = filter === 'all'
-    ? PRODUCTS
-    : PRODUCTS.filter(p => p.category === filter)
-
-  const categories = ['all', 'polos', 'hats', 'shorts', 'hoodies', 'accessories']
 
   useEffect(() => {
     const queryCategory = router.query.category
-    if (typeof queryCategory === 'string' && categories.includes(queryCategory)) {
-      setFilter(queryCategory)
-    }
+    setFilter(typeof queryCategory === 'string' && categories.includes(queryCategory as typeof categories[number]) ? queryCategory : 'all')
   }, [router.query.category])
 
   const selectCategory = (category: string) => {
@@ -30,77 +21,51 @@ export default function ShopPage() {
     void router.push(category === 'all' ? '/shop' : `/shop?category=${category}`, undefined, { shallow: true })
   }
 
-  const handleAddToCart = (product: typeof PRODUCTS[0], size: string) => {
-    addToCart(product.id, size)
-    setSelectedProduct(null)
-    setSelectedSize('')
-  }
+  const filtered = filter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === filter)
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200 bg-white">
+    <>
+      <Head>
+        <title>Shop — {SITE.name}</title>
+        <meta name="description" content="Shop colorful Dingersville golf apparel, hats, shorts, hoodies, and accessories." />
+        <link rel="canonical" href={`https://${SITE.domain}/shop`} />
+      </Head>
+      <div className="min-h-screen bg-brand-cream/40">
+        <header className="border-b border-brand-orange/10 bg-brand-cream">
+          <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-orange">The collection</p>
+            <h1 className="mt-2 font-brand text-4xl font-bold text-gray-900">Shop Dingersville</h1>
+            <p className="mt-3 max-w-xl text-lg text-gray-600">Colorful golf gear for people who love the game and bring their own vibe.</p>
+          </div>
+        </header>
+
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900">Shop</h1>
-          <p className="mt-2 text-gray-500">Golf apparel that doesn't take itself too seriously.</p>
-        </div>
-      </header>
+          <div className="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filter products by category">
+            {categories.map(category => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => selectCategory(category)}
+                aria-pressed={filter === category}
+                className={`min-h-11 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${filter === category ? 'bg-brand-orange text-white shadow-sm' : 'border border-gray-200 bg-white text-gray-600 hover:border-brand-orange hover:text-brand-orange'}`}
+              >
+                {category === 'all' ? 'All' : category.charAt(0).toUpperCase() + category.slice(1)}
+              </button>
+            ))}
+          </div>
 
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Category filters */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => selectCategory(cat)}
-              aria-pressed={filter === cat}
-              className={`min-h-11 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                filter === cat
-                  ? 'bg-brand-orange text-white shadow-sm'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:border-brand-orange/50'
-              }`}
-            >
-              {cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
-          ))}
-        </div>
-
-        {/* Product grid */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map(product => (
-            <Link
-              key={product.id}
-              href={`/shop/${product.id}`}
-              className="group rounded-2xl border border-gray-200 bg-white overflow-hidden transition-shadow hover:shadow-lg"
-            >
-              <div className="aspect-square bg-gray-100 relative overflow-hidden">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                />
-                <div
-                  className="pointer-events-none absolute top-3 right-3 rounded-full bg-white/95 px-2.5 py-1 text-xs font-semibold shadow-sm"
-                  title={`Color: ${product.color}`}
-                >
-                  {product.color}
-                </div>
-              </div>
-              <div className="p-4">
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Dingersville</p>
-                <h3 className="mt-1 text-base font-semibold text-gray-900 group-hover:text-brand-orange transition-colors">
-                  {product.name}
-                </h3>
-                <p className="mt-1 text-sm text-gray-500 line-clamp-2">{product.tagline}</p>
-                <p className="mt-2 text-lg font-bold text-gray-900">
-                  {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(product.priceCents / 100)}
-                </p>
-              </div>
-            </Link>
-          ))}
+          {filtered.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filtered.map(product => <ProductCard key={product.id} product={product} />)}
+            </div>
+          ) : (
+            <div className="rounded-3xl bg-white p-12 text-center shadow-sm">
+              <h2 className="font-brand text-2xl font-bold text-gray-900">Nothing in this category yet</h2>
+              <p className="mt-2 text-gray-600">Try another filter or browse the full collection.</p>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </>
   )
 }

@@ -13,7 +13,19 @@ interface ProductPageProps {
 export default function ProductPage({ product }: ProductPageProps) {
   const { addToCart, itemCount } = useCart()
   const [selectedSize, setSelectedSize] = useState<string>(product.sizes[0] || '')
+  const [selectedColor, setSelectedColor] = useState<string>(product.colors?.[0] || product.color)
+  const [selectedImage, setSelectedImage] = useState(0)
   const [addedToCart, setAddedToCart] = useState(false)
+
+  const allImages = product.images?.length ? product.images : [{ src: product.image, variantIds: [] }]
+  const colorImages = selectedColor === 'Multi'
+    ? allImages
+    : allImages.filter(image => image.variantIds.length === 0 || image.variantIds.some(id => {
+        const variant = product.variants?.find(item => item.id === String(id))
+        return variant?.color.toLowerCase().includes(selectedColor.toLowerCase()) || variant?.title.toLowerCase().includes(selectedColor.toLowerCase())
+      }))
+  const gallery = colorImages.length ? colorImages : allImages
+  const activeImage = gallery[Math.min(selectedImage, gallery.length - 1)]?.src || product.image
 
   const handleAddToCart = () => {
     if (!selectedSize || addedToCart) return
@@ -36,18 +48,34 @@ export default function ProductPage({ product }: ProductPageProps) {
 
         <div className="grid gap-10 md:grid-cols-2">
           {/* Product image */}
-          <div className="aspect-square rounded-3xl bg-gradient-to-br from-brand-cream via-brand-teal/10 to-brand-purple/15 relative overflow-hidden ring-1 ring-brand-purple/10 shadow-sm">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
-              priority
-            />
-            <div className="absolute top-4 right-4 rounded-full bg-white px-3 py-1 text-sm font-semibold shadow-sm">
-              {product.color}
+          <div>
+            <div className="relative aspect-square overflow-hidden rounded-3xl bg-brand-cream shadow-sm ring-1 ring-brand-purple/10">
+              <Image
+                src={activeImage}
+                alt={`${product.name}${selectedColor !== 'Multi' ? ` in ${selectedColor}` : ''}`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+              />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/20 to-transparent" />
             </div>
+            {gallery.length > 1 && (
+              <div className="mt-3 grid grid-cols-4 gap-2" aria-label="Product images">
+                {gallery.slice(0, 8).map((image, index) => (
+                  <button
+                    key={`${image.src}-${index}`}
+                    type="button"
+                    onClick={() => setSelectedImage(index)}
+                    aria-label={`View image ${index + 1}`}
+                    aria-pressed={selectedImage === index}
+                    className={`relative aspect-square overflow-hidden rounded-xl border-2 bg-white ${selectedImage === index ? 'border-brand-orange' : 'border-transparent'}`}
+                  >
+                    <Image src={image.src} alt="" fill className="object-cover" sizes="100px" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product details */}
@@ -60,6 +88,26 @@ export default function ProductPage({ product }: ProductPageProps) {
             </p>
 
             <p className="mt-6 text-gray-600 leading-relaxed">{product.description}</p>
+
+            {/* Color selector */}
+            {(product.colors?.length || 0) > 1 && (
+              <div className="mt-8">
+                <span className="text-sm font-semibold text-gray-700">Color: <span className="font-normal">{selectedColor}</span></span>
+                <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Select color">
+                  {product.colors?.map(color => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => { setSelectedColor(color); setSelectedImage(0) }}
+                      aria-pressed={selectedColor === color}
+                      className={`min-h-11 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${selectedColor === color ? 'border-brand-purple bg-brand-purple text-white shadow-sm ring-2 ring-brand-purple/25' : 'border-gray-300 bg-white text-gray-700 hover:border-brand-purple hover:text-brand-purple'}`}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Size selector */}
             <div className="mt-8">
