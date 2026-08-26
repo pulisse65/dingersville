@@ -60,7 +60,7 @@ export default function Footer() {
 function ImageWrappedMascot() {
   return (
     <img
-      src="/brand/dinger-don-mark-192.png"
+      src="/brand/dinger-don-nav.png"
       alt=""
       width={32}
       height={32}

@@ -175,8 +175,27 @@ const CORE_PRODUCTS: Product[] = [
 
 const roundToNinetyNine = (cents: number) => Math.max(99, Math.floor(cents / 100) * 100 + 99)
 
+const REMOVED_PRODUCT_NAMES = new Set([
+  'Dinger Long-Sleeve',
+  'Classic Dad Cap',
+  'Dinger Polo',
+  'Dinger Short',
+  'Footballer Player Tee',
+  'Stylish AOP Unisex Polo Shirt | Vibrant Patterned Shirt for Casual Outings, Summer Vacations, Gifts, Parties, Tropical Vibes',
+  'adidas® Quarter-Zip Pullover (Embroidery)',
+  'Blue and Yellow Mascot Dinger',
+  'Red Mascot Dinger',
+  'Green and White Mascot Dinger',
+  'Champaign Dinger Bra',
+  'Whimsical Beer-Themed Crew Socks for Fun Days, Perfect Gift for Beer Lovers, Cozy Socks, Unique Party Accessory, Fun Holiday Gift',
+  'Dingersville Golf Balls - Perfect for Gifts, Golf Lovers, Tournaments, Casual Play, and Holiday Fun!',
+])
+
+const AVAILABLE_CORE_PRODUCTS = CORE_PRODUCTS.filter(product => !REMOVED_PRODUCT_NAMES.has(product.name))
+
 const EXTRA_PRODUCTS: Product[] = PRINTIFY_PRODUCTS
-  .filter(printify => !CORE_PRODUCTS.some(core => core.printifyId === printify.printifyId))
+  .filter(printify => !REMOVED_PRODUCT_NAMES.has(printify.name))
+  .filter(printify => !AVAILABLE_CORE_PRODUCTS.some(core => core.printifyId === printify.printifyId))
   .map((printify, index) => ({
     id: `printify-${printify.printifyId}`,
     name: printify.name,
@@ -199,7 +218,7 @@ const EXTRA_PRODUCTS: Product[] = PRINTIFY_PRODUCTS
 
 // Preserve stable IDs and fulfillment mappings for the original core products,
 // while exposing every currently published Printify product on the storefront.
-export const PRODUCTS: Product[] = [...CORE_PRODUCTS, ...EXTRA_PRODUCTS].map(product => {
+export const PRODUCTS: Product[] = [...AVAILABLE_CORE_PRODUCTS, ...EXTRA_PRODUCTS].map(product => {
   const synced = byPrintifyId(product.printifyId)
   return {
     ...product,
