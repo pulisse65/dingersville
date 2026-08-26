@@ -178,6 +178,9 @@ const roundToNinetyNine = (cents: number) => Math.max(99, Math.floor(cents / 100
 const REMOVED_PRODUCT_NAMES = new Set([
   'Dinger Long-Sleeve',
   'Classic Dad Cap',
+  'Embroidered Quarter-Zip Pullover — White Athletic Adidas-Inspired Top',
+  'Dingersville Classic Dad Cap, Casual Hat for Golf Lovers, Gift for Fathers\' Day, Embroidered Dad Hat, Unisex Summer Cap',
+  'Champagne Golf Bike Shorts',
   'Dinger Polo',
   'Dinger Short',
   'Footballer Player Tee',
