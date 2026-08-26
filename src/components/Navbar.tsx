@@ -25,7 +25,7 @@ export default function Navbar() {
         {/* Logo: mascot mark + wordmark */}
         <Link href="/" className="flex items-center gap-2.5" onClick={closeMenu}>
           <Image
-            src="/brand/dinger-don-mark-192.png"
+            src="/brand/dinger-don-nav.png"
             alt=""
             width={36}
             height={36}

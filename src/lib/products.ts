@@ -173,7 +173,7 @@ const CORE_PRODUCTS: Product[] = [
   },
 ]
 
-const roundToNinetyNine = (cents: number) => Math.max(99, Math.ceil(cents / 100) * 100 - 1)
+const roundToNinetyNine = (cents: number) => Math.max(99, Math.floor(cents / 100) * 100 + 99)
 
 const EXTRA_PRODUCTS: Product[] = PRINTIFY_PRODUCTS
   .filter(printify => !CORE_PRODUCTS.some(core => core.printifyId === printify.printifyId))
