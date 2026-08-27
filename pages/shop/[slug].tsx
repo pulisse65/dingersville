@@ -81,9 +81,8 @@ export default function ProductPage({ product }: ProductPageProps) {
           {/* Product details */}
           <div id="main-content" className="flex flex-col rounded-3xl bg-brand-cream/70 p-6 md:p-8 shadow-sm ring-1 ring-brand-orange/10">
             <p className="text-sm text-gray-500 uppercase tracking-wide">Dingersville — {product.category}</p>
-            <h1 className="mt-1 text-3xl font-brand font-bold text-gray-900">{product.name}</h1>
-            <p className="mt-2 text-orange font-semibold">{product.tagline}</p>
-            <p className="mt-2 text-lg font-brand font-bold text-gray-900">
+            <h1 className="mt-1 font-brand text-3xl font-bold text-gray-900">{product.name}</h1>
+            <p className="mt-2 font-brand text-lg font-bold text-gray-900">
               {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(product.priceCents / 100)}
             </p>
 
