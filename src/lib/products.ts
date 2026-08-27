@@ -194,6 +194,20 @@ const REMOVED_PRODUCT_NAMES = new Set([
   'Dingersville Golf Balls - Perfect for Gifts, Golf Lovers, Tournaments, Casual Play, and Holiday Fun!',
 ])
 
+const POLO_NAMES = new Set([
+  'Hotdog Dinger',
+  'White Coney Dinger',
+  'Golf Cart Dinger Don',
+  'Good Vibes Dinger',
+  'Navy Dinger Don',
+  'Cream Color Dinger Don',
+  'Fun Golf Vibes Dinger',
+  'Red Coney Dinger',
+  'Golf Grief Dinger',
+  'Detroit Style Pizza Dinger',
+  'Golfing Animal Dinger',
+])
+
 const AVAILABLE_CORE_PRODUCTS = CORE_PRODUCTS.filter(product => !REMOVED_PRODUCT_NAMES.has(product.name))
 
 const EXTRA_PRODUCTS: Product[] = PRINTIFY_PRODUCTS
@@ -211,7 +225,7 @@ const EXTRA_PRODUCTS: Product[] = PRINTIFY_PRODUCTS
     sizes: printify.sizes.length ? printify.sizes : ['One Size'],
     image: printify.image,
     images: printify.images,
-    category: printify.category,
+    category: POLO_NAMES.has(printify.name) ? 'polos' : printify.category,
     printifyId: printify.printifyId,
     printifyVariantId: printify.printifyVariantId,
     sku: printify.sku || `printify-${index}`,
