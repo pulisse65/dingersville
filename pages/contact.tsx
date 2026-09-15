@@ -159,8 +159,8 @@ export default function ContactPage() {
                 <div className="flex flex-col">
                   <dt className="text-xs text-gray-500 uppercase tracking-wide">Email</dt>
                   <dd className="mt-1 text-sm text-gray-700">
-                    <a href="mailto:hello@dingersville.com" className="hover:text-brand-orange transition-colors">
-                      hello@dingersville.com
+                    <a href="mailto:support@dingersville.com" className="hover:text-brand-orange transition-colors">
+                      support@dingersville.com
                     </a>
                   </dd>
                 </div>
