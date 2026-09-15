@@ -85,7 +85,10 @@ export default function ContactPage() {
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
                   <input
                     id="name"
+                    name="name"
                     type="text"
+                    autoComplete="name"
+                    spellCheck={false}
                     required
                     value={formData.name}
                     onChange={e => setFormData(f => ({ ...f, name: e.target.value }))}
@@ -97,7 +100,10 @@ export default function ContactPage() {
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
                   <input
                     id="email"
+                    name="email"
                     type="email"
+                    autoComplete="email"
+                    spellCheck={false}
                     required
                     value={formData.email}
                     onChange={e => setFormData(f => ({ ...f, email: e.target.value }))}
@@ -109,6 +115,8 @@ export default function ContactPage() {
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700">Message</label>
                   <textarea
                     id="message"
+                    name="message"
+                    autoComplete="off"
                     required
                     rows={5}
                     value={formData.message}
