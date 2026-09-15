@@ -78,7 +78,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         message.trim(),
       ].join('\n'),
       html: `
-        <div style="margin:0;background:#fffaf0;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#273238;">
+        <div style="margin:0;background:#fffaf0;padding:32px 16px;font-family:'Chalkboard SE','Chalkboard','Comic Sans MS',Arial,Helvetica,sans-serif;color:#273238;">
           <div style="display:none;max-height:0;overflow:hidden;opacity:0;">New message for Dingersville support from ${safeName}.</div>
           <div style="max-width:620px;margin:0 auto;">
             <div style="border-radius:20px 20px 0 0;background:#f47b20;padding:24px 28px;text-align:center;">
