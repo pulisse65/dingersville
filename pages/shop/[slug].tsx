@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/lib/cart'
 import { PRODUCTS, byId, Product } from '@/lib/products'
+import { fitGuidance } from '@/lib/fit-guidance'
 
 interface ProductPageProps {
   product: Product
@@ -26,6 +27,7 @@ export default function ProductPage({ product }: ProductPageProps) {
       }))
   const gallery = colorImages.length ? colorImages : allImages
   const activeImage = gallery[Math.min(selectedImage, gallery.length - 1)]?.src || product.image
+  const productFitGuidance = fitGuidance(product)
 
   const handleAddToCart = () => {
     if (!selectedSize || addedToCart) return
@@ -128,6 +130,24 @@ export default function ProductPage({ product }: ProductPageProps) {
                 ))}
               </div>
             </div>
+
+            {productFitGuidance && (
+              <section
+                aria-labelledby="fit-sizing-title"
+                className="mt-6 rounded-2xl border border-brand-teal/20 bg-white/75 p-4"
+              >
+                <h2 id="fit-sizing-title" className="text-sm font-bold text-gray-900">
+                  Fit &amp; sizing
+                </h2>
+                <p className="mt-1 text-sm text-gray-700">{productFitGuidance}</p>
+                <p className="mt-2 text-xs text-gray-600">
+                  Fit varies by style; we don’t claim every item runs true to size. Need exact garment measurements or help choosing?{' '}
+                  <a href="mailto:hello@dingersville.com" className="font-semibold text-brand-purple underline underline-offset-2">
+                    Email us before ordering
+                  </a>.
+                </p>
+              </section>
+            )}
 
             {/* Add to cart */}
             <button
