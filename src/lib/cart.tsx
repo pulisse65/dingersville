@@ -1,28 +1,32 @@
 'use client'
 
 import { createContext, useContext, useReducer, useEffect, useCallback, ReactNode } from 'react'
-import { byId, Product } from './products'
+import { byId } from './products'
+import { getVariantAttributes, getVariantForSelection, hasVariantSelectionOptions } from './product-variants'
 
 export type LineItem = {
   productId: string
   size: string
+  color?: string
+  variantId?: string
   qty: number
 }
 
 type CartState = LineItem[]
 
+const lineKey = (item: LineItem) =>
+  `${item.productId}:${item.variantId ?? `${item.size}:${item.color ?? ''}`}`
+
 type CartAction =
   | { type: 'ADD'; item: LineItem }
-  | { type: 'REMOVE_LINE'; productId: string; size: string }
-  | { type: 'SET_QTY'; productId: string; size: string; qty: number }
+  | { type: 'REMOVE_LINE'; item: LineItem }
+  | { type: 'SET_QTY'; item: LineItem; qty: number }
   | { type: 'CLEAR' }
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD': {
-      const existing = state.findIndex(
-        i => i.productId === action.item.productId && i.size === action.item.size
-      )
+      const existing = state.findIndex(i => lineKey(i) === lineKey(action.item))
       if (existing >= 0) {
         const next = [...state]
         next[existing] = { ...next[existing], qty: Math.min(10, next[existing].qty + action.item.qty) }
@@ -31,10 +35,10 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return [...state, { ...action.item, qty: Math.min(10, action.item.qty) }]
     }
     case 'REMOVE_LINE':
-      return state.filter(i => !(i.productId === action.productId && i.size === action.size))
+      return state.filter(i => lineKey(i) !== lineKey(action.item))
     case 'SET_QTY': {
-      if (action.qty < 1) return state.filter(i => !(i.productId === action.productId && i.size === action.size))
-      const existing = state.findIndex(i => i.productId === action.productId && i.size === action.size)
+      if (action.qty < 1) return state.filter(i => lineKey(i) !== lineKey(action.item))
+      const existing = state.findIndex(i => lineKey(i) === lineKey(action.item))
       if (existing < 0) return state
       const next = [...state]
       next[existing] = { ...next[existing], qty: Math.min(10, action.qty) }
@@ -47,15 +51,63 @@ function cartReducer(state: CartState, action: CartAction): CartState {
   }
 }
 
+function normalizeStoredItem(raw: unknown): LineItem | null {
+  if (!raw || typeof raw !== 'object') return null
+  const item = raw as Partial<LineItem>
+  if (typeof item.productId !== 'string' || typeof item.qty !== 'number' || !Number.isInteger(item.qty) || item.qty < 1) {
+    return null
+  }
+
+  const product = byId(item.productId)
+  if (!product) return null
+
+  const variants = product.variants ?? []
+  let variant = typeof item.variantId === 'string'
+    ? variants.find(option => option.id === item.variantId)
+    : undefined
+  let size = typeof item.size === 'string' && product.sizes.includes(item.size) ? item.size : undefined
+  let color = typeof item.color === 'string' && product.colors?.includes(item.color) ? item.color : undefined
+
+  if (variant) {
+    const attributes = getVariantAttributes(variant.title)
+    if (attributes) {
+      size = attributes.size
+      color = attributes.color ?? color
+    }
+  }
+
+  if (!size) {
+    variant = variants.find(option => option.id === product.printifyVariantId)
+    const attributes = variant ? getVariantAttributes(variant.title) : null
+    if (attributes && product.sizes.includes(attributes.size)) size = attributes.size
+    if (attributes?.color) color = attributes.color
+  }
+
+  size ??= product.sizes[0]
+  color ??= product.colors?.[0] ?? product.color
+  if (!size) return null
+
+  variant ??= getVariantForSelection(variants, size, color) ?? undefined
+  if (!variant && hasVariantSelectionOptions(variants)) return null
+
+  return {
+    productId: product.id,
+    size,
+    color,
+    variantId: variant?.id ?? product.printifyVariantId,
+    qty: Math.min(10, item.qty),
+  }
+}
+
 const CART_STORAGE_KEY = 'dingersville.cart.v1'
 
 interface CartContextValue {
   items: LineItem[]
   itemCount: number
   subtotalCents: number
-  addToCart: (productId: string, size: string, qty?: number) => void
-  removeFromCart: (productId: string, size: string) => void
-  setQty: (productId: string, size: string, qty: number) => void
+  addToCart: (productId: string, size: string, color: string, variantId: string, qty?: number) => void
+  removeFromCart: (item: LineItem) => void
+  setQty: (item: LineItem, qty: number) => void
   clearCart: () => void
 }
 
@@ -69,11 +121,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       const raw = localStorage.getItem(CART_STORAGE_KEY)
       if (raw) {
-        const parsed: LineItem[] = JSON.parse(raw)
-        // Validate
-        const valid = parsed.filter((i: LineItem) => byId(i.productId) && i.qty > 0)
+        const parsed: unknown = JSON.parse(raw)
+        const valid = Array.isArray(parsed)
+          ? parsed.map(normalizeStoredItem).filter((item): item is LineItem => item !== null)
+          : []
         if (valid.length) dispatch({ type: 'CLEAR' })
-        valid.forEach((i: LineItem) => dispatch({ type: 'ADD', item: i }))
+        valid.forEach(item => dispatch({ type: 'ADD', item }))
       }
     } catch {
       // ignore corrupt storage
@@ -89,16 +142,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [state])
 
-  const addToCart = useCallback((productId: string, size: string, qty = 1) => {
-    dispatch({ type: 'ADD', item: { productId, size, qty } })
+  const addToCart = useCallback((productId: string, size: string, color: string, variantId: string, qty = 1) => {
+    dispatch({ type: 'ADD', item: { productId, size, color, variantId, qty } })
   }, [])
 
-  const removeFromCart = useCallback((productId: string, size: string) => {
-    dispatch({ type: 'REMOVE_LINE', productId, size })
+  const removeFromCart = useCallback((item: LineItem) => {
+    dispatch({ type: 'REMOVE_LINE', item })
   }, [])
 
-  const setQty = useCallback((productId: string, size: string, qty: number) => {
-    dispatch({ type: 'SET_QTY', productId, size, qty })
+  const setQty = useCallback((item: LineItem, qty: number) => {
+    dispatch({ type: 'SET_QTY', item, qty })
   }, [])
 
   const clearCart = useCallback(() => {

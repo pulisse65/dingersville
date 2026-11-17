@@ -1,4 +1,5 @@
 import { PRINTIFY_PRODUCTS, byPrintifyId } from './printify'
+import { getVariantOptions } from './product-variants'
 
 // Stable product IDs — map to Printify product IDs
 // Our 4 core products (renamed/retailed from Printify) + 6 additional Printify picks
@@ -237,12 +238,20 @@ const EXTRA_PRODUCTS: Product[] = PRINTIFY_PRODUCTS
 // while exposing every currently published Printify product on the storefront.
 export const PRODUCTS: Product[] = [...AVAILABLE_CORE_PRODUCTS, ...EXTRA_PRODUCTS].map(product => {
   const synced = byPrintifyId(product.printifyId)
+  const variants = product.variants ?? synced?.variants
+  const { sizes, colors } = getVariantOptions(
+    variants,
+    product.sizes,
+    product.colors ?? synced?.colors ?? [product.color],
+  )
+
   return {
     ...product,
     priceCents: roundToNinetyNine(product.priceCents),
+    sizes,
     images: product.images ?? synced?.images ?? [{ src: product.image, variantIds: [] }],
-    colors: product.colors ?? synced?.colors ?? [product.color],
-    variants: product.variants ?? synced?.variants,
+    colors,
+    variants,
   }
 })
 

@@ -87,7 +87,7 @@ export default function CartPage() {
                 const product = byId(item.productId)
                 if (!product) return null
                 return (
-                  <div key={`${item.productId}-${item.size}`} className="flex gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <div key={[item.productId, item.variantId ?? item.size, item.color ?? ''].join('-')} className="flex gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
                     <div className="relative h-24 w-20 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
                       <Image
                         src={product.image}
@@ -102,13 +102,16 @@ export default function CartPage() {
                         <div className="min-w-0">
                           <h3 className="text-base font-semibold text-gray-900 truncate">{product.name}</h3>
                           <p className="text-sm text-gray-500">Size: {item.size}</p>
+                          {item.color && item.color !== 'Multi' && (
+                            <p className="text-sm text-gray-500">Color: {item.color}</p>
+                          )}
                           <p className="mt-1 text-base font-bold text-gray-900">
                             {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(product.priceCents / 100)}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => setQty(item.productId, item.size, item.qty - 1)}
+                            onClick={() => setQty(item, item.qty - 1)}
                             disabled={item.qty <= 1}
                             aria-label={`Decrease ${product.name} quantity`}
                             className="min-h-11 min-w-11 rounded-md border border-gray-300 p-1 text-lg text-gray-500 hover:border-brand-orange hover:text-brand-orange disabled:opacity-40"
@@ -117,7 +120,7 @@ export default function CartPage() {
                           </button>
                           <span className="w-8 text-center text-sm font-medium text-gray-900">{item.qty}</span>
                           <button
-                            onClick={() => setQty(item.productId, item.size, item.qty + 1)}
+                            onClick={() => setQty(item, item.qty + 1)}
                             aria-label={`Increase ${product.name} quantity`}
                             disabled={item.qty >= 10}
                             className="min-h-11 min-w-11 rounded-md border border-gray-300 p-1 text-lg text-gray-500 hover:border-brand-orange hover:text-brand-orange disabled:opacity-40"
@@ -127,7 +130,7 @@ export default function CartPage() {
                         </div>
                       </div>
                       <button
-                        onClick={() => removeFromCart(item.productId, item.size)}
+                        onClick={() => removeFromCart(item)}
                         className="mt-2 text-sm text-gray-500 hover:text-red-600 transition-colors"
                       >
                         Remove

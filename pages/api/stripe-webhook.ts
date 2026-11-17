@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import Stripe from 'stripe'
 import { byId } from '@/lib/products'
+import { getVariantAttributes, getVariantForSelection, hasVariantSelectionOptions } from '@/lib/product-variants'
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY
 if (!stripeSecretKey) {
@@ -61,22 +62,77 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
 
-    const items: Array<{ productId: string; size: string; qty: number }> = []
+    const items: Array<{
+      productId?: string
+      p?: string
+      size?: string
+      color?: string
+      variantId?: string
+      v?: string
+      qty?: number
+      q?: number
+    }> = []
     try {
-      items.push(...JSON.parse(session.metadata?.items || '[]'))
+      const parsed: unknown = JSON.parse(session.metadata?.items || '[]')
+      if (Array.isArray(parsed)) {
+        items.push(...parsed.map((raw: unknown) => {
+          const item = (raw && typeof raw === 'object' ? raw : {}) as typeof items[number]
+          return {
+            ...item,
+            productId: item.productId ?? item.p,
+            variantId: item.variantId ?? item.v,
+            qty: item.qty ?? item.q,
+          }
+        }))
+      }
     } catch {
       return res.status(200).json({ received: true })
     }
 
-    // Re-validate every item before dispatch
-    const validatedItems = items.filter((i) => {
-      if (!i.productId || !i.size || typeof i.qty !== 'number' || !Number.isInteger(i.qty)) return false
-      if (i.qty < 1 || i.qty > 10) return false
-      const product = byId(i.productId)
-      if (!product) return false
-      if (!product.sizes.includes(i.size)) return false
-      return true
-    })
+    // Resolve and re-validate the exact Printify variant before dispatch.
+    const validatedItems: Array<{
+      productId: string; size: string; color: string; qty: number; variantId: string
+    }> = []
+    for (const item of items) {
+      const productId = item.productId
+      const qty = item.qty
+      if (!productId || typeof qty !== 'number' || !Number.isInteger(qty) || qty < 1 || qty > 10) continue
+      const product = byId(productId)
+      if (!product) continue
+
+      const variantFromId = item.variantId
+        ? product.variants?.find(option => option.id === item.variantId)
+        : undefined
+      if (item.variantId && !variantFromId) continue
+
+      let size = item.size && product.sizes.includes(item.size) ? item.size : undefined
+      let color = item.color && product.colors?.includes(item.color) ? item.color : undefined
+      let variant = variantFromId
+      const attributes = variant ? getVariantAttributes(variant.title) : null
+      if (attributes) {
+        size = attributes.size
+        color = attributes.color ?? color
+      }
+
+      if (!size && !variant) {
+        variant = product.variants?.find(option => option.id === product.printifyVariantId)
+        const defaults = variant ? getVariantAttributes(variant.title) : null
+        if (defaults && product.sizes.includes(defaults.size)) size = defaults.size
+        if (defaults?.color) color = defaults.color
+      }
+      size ??= product.sizes[0]
+      color ??= product.colors?.[0] ?? product.color
+      if (!size || !product.sizes.includes(size) || !product.colors?.includes(color)) continue
+
+      variant ??= getVariantForSelection(product.variants, size, color) ?? undefined
+      if (!variant && !hasVariantSelectionOptions(product.variants)) {
+        variant = product.variants?.find(option => option.id === product.printifyVariantId)
+      }
+      if (!variant) continue
+      if (item.variantId && item.variantId !== variant.id) continue
+
+      validatedItems.push({ productId, size, color, qty, variantId: variant.id })
+    }
 
     if (validatedItems.length === 0) {
       console.error('No valid items to fulfill for session:', session.id)
@@ -87,15 +143,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       order_id: session.id,
       email: session.customer_details?.email,
       shipping: session.shipping_details,
-      items: validatedItems.map((i) => {
-        const product = byId(i.productId)!
+      items: validatedItems.map((item) => {
+        const product = byId(item.productId)!
         return {
-          productId: i.productId,
-          size: i.size,
-          qty: i.qty,
+          productId: item.productId,
+          size: item.size,
+          color: item.color,
+          qty: item.qty,
           name: product.name,
           priceCents: product.priceCents,
-          variant_id: product.printifyVariantId,
+          variant_id: item.variantId,
         }
       }),
       subtotalCents: session.amount_total || 0,

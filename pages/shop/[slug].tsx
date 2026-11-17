@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useCart } from '@/lib/cart'
 import { PRODUCTS, byId, Product } from '@/lib/products'
 import { fitGuidance } from '@/lib/fit-guidance'
+import { getVariantForSelection, hasVariantSelectionOptions } from '@/lib/product-variants'
 
 interface ProductPageProps {
   product: Product
@@ -17,6 +18,10 @@ export default function ProductPage({ product }: ProductPageProps) {
   const [selectedColor, setSelectedColor] = useState<string>(product.colors?.[0] || product.color)
   const [selectedImage, setSelectedImage] = useState(0)
   const [addedToCart, setAddedToCart] = useState(false)
+
+  const hasSelectableVariants = hasVariantSelectionOptions(product.variants)
+  const selectedVariant = getVariantForSelection(product.variants, selectedSize, selectedColor)
+  const canAddSelectedVariant = !hasSelectableVariants || selectedVariant !== null
 
   const allImages = product.images?.length ? product.images : [{ src: product.image, variantIds: [] }]
   const colorImages = selectedColor === 'Multi'
@@ -30,8 +35,8 @@ export default function ProductPage({ product }: ProductPageProps) {
   const productFitGuidance = fitGuidance(product)
 
   const handleAddToCart = () => {
-    if (!selectedSize || addedToCart) return
-    addToCart(product.id, selectedSize)
+    if (!selectedSize || addedToCart || !canAddSelectedVariant) return
+    addToCart(product.id, selectedSize, selectedColor, selectedVariant?.id ?? product.printifyVariantId)
     setAddedToCart(true)
   }
 
@@ -100,8 +105,9 @@ export default function ProductPage({ product }: ProductPageProps) {
                       key={color}
                       type="button"
                       onClick={() => { setSelectedColor(color); setSelectedImage(0) }}
+                      disabled={hasSelectableVariants && !getVariantForSelection(product.variants, selectedSize, color)}
                       aria-pressed={selectedColor === color}
-                      className={`min-h-11 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${selectedColor === color ? 'border-brand-purple bg-brand-purple text-white shadow-sm ring-2 ring-brand-purple/25' : 'border-gray-300 bg-white text-gray-700 hover:border-brand-purple hover:text-brand-purple'}`}
+                      className={`min-h-11 rounded-full border px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${selectedColor === color ? 'border-brand-purple bg-brand-purple text-white shadow-sm ring-2 ring-brand-purple/25' : 'border-gray-300 bg-white text-gray-700 hover:border-brand-purple hover:text-brand-purple'}`}
                     >
                       {color}
                     </button>
@@ -118,8 +124,9 @@ export default function ProductPage({ product }: ProductPageProps) {
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
+                    disabled={hasSelectableVariants && !getVariantForSelection(product.variants, size, selectedColor)}
                     aria-pressed={selectedSize === size}
-                    className={`min-h-11 min-w-11 rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
+                    className={`min-h-11 min-w-11 rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
                       selectedSize === size
                         ? '!border-brand-orange !bg-brand-orange !text-white shadow-sm ring-2 ring-brand-orange/30'
                         : 'border-gray-300 bg-white text-gray-700 hover:border-brand-orange hover:text-brand-orange'
@@ -152,17 +159,19 @@ export default function ProductPage({ product }: ProductPageProps) {
             {/* Add to cart */}
             <button
               onClick={handleAddToCart}
-              disabled={!selectedSize}
+              disabled={!selectedSize || !canAddSelectedVariant}
               className={`mt-6 w-full rounded-xl px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors ${
                 addedToCart
                   ? 'bg-gray-400 cursor-default'
-                  : !selectedSize
+                  : !selectedSize || !canAddSelectedVariant
                   ? 'bg-gray-300 cursor-not-allowed'
                   : 'bg-orange hover:bg-orange/90'
               }`}
             >
               {addedToCart ? (
                 'Added to bag'
+              ) : !canAddSelectedVariant ? (
+                'Choose an available size/color'
               ) : selectedSize ? (
                 `Add to bag — ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(product.priceCents / 100)}`
               ) : (
